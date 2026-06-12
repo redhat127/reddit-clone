@@ -1,8 +1,8 @@
+import { uniqueEmailPlugin } from '#/better-auth/plugin/unique-email'
 import { db } from '@/db'
 import { redisStorage } from '@better-auth/redis-storage'
 import { localization } from 'better-auth-localization'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
-import { APIError, createAuthMiddleware } from 'better-auth/api'
 import { betterAuth } from 'better-auth/minimal'
 import { username } from 'better-auth/plugins'
 import { tanstackStartCookies } from 'better-auth/tanstack-start'
@@ -34,39 +34,10 @@ export const auth = betterAuth({
       defaultLocale: 'fa-IR',
       fallbackLocale: 'default',
     }),
+    uniqueEmailPlugin(),
     username(),
     tanstackStartCookies(),
   ],
-  hooks: {
-    before: createAuthMiddleware(async (ctx) => {
-      if (ctx.path !== '/sign-up/email') {
-        return
-      }
-
-      const { email } = ctx.body as { email?: string }
-
-      if (!email) {
-        return
-      }
-
-      const existing = await ctx.context.adapter.findOne({
-        model: 'user',
-        where: [
-          {
-            field: 'email',
-            value: email,
-            mode: 'insensitive',
-          },
-        ],
-      })
-
-      if (existing) {
-        throw new APIError('BAD_REQUEST', {
-          message: 'این ایمیل قبلاً ثبت شده است.',
-        })
-      }
-    }),
-  },
   advanced: {
     database: {
       generateId: false,
