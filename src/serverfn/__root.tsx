@@ -1,9 +1,14 @@
 import { serverEnv } from '#/lib/env.server'
 import { createServerFn } from '@tanstack/react-start'
+import { getUser } from './user'
 
-export const getRootData = createServerFn({ method: 'GET' }).handler(() => {
-  const { APP_NAME } = serverEnv
-  const safeEnv = { APP_NAME }
+export const getRootData = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const user = await getUser()
 
-  return { safeEnv }
-})
+    const { APP_NAME } = serverEnv
+    const safeEnv = { APP_NAME }
+
+    return { user, safeEnv }
+  },
+)
