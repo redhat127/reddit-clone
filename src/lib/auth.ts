@@ -1,10 +1,12 @@
 import { db } from '@/db'
+import { redisStorage } from '@better-auth/redis-storage'
 import { localization } from 'better-auth-localization'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { APIError, createAuthMiddleware } from 'better-auth/api'
 import { betterAuth } from 'better-auth/minimal'
 import { tanstackStartCookies } from 'better-auth/tanstack-start'
 import { serverEnv } from './env.server'
+import { redis } from './redis.server'
 
 export const auth = betterAuth({
   appName: serverEnv.APP_NAME,
@@ -62,4 +64,8 @@ export const auth = betterAuth({
       generateId: false,
     },
   },
+  secondaryStorage: redisStorage({
+    client: redis,
+    keyPrefix: 'better-auth:',
+  }),
 })
