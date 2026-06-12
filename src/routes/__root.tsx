@@ -1,15 +1,19 @@
+import { TanStackDevtools } from '@tanstack/react-devtools'
 import {
   HeadContent,
   Scripts,
   createRootRouteWithContext,
 } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
-import { TanStackDevtools } from '@tanstack/react-devtools'
 
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 
 import appCss from '../styles.css?url'
 
+import { DirectionProvider } from '#/components/ui/direction'
+import { Toaster } from '#/components/ui/sonner'
+import { TooltipProvider } from '#/components/ui/tooltip'
+import { getRootData } from '#/serverfn/__root'
 import type { QueryClient } from '@tanstack/react-query'
 
 interface MyRouterContext {
@@ -17,7 +21,13 @@ interface MyRouterContext {
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
-  head: () => ({
+  head: ({
+    match: {
+      context: {
+        safeEnv: { APP_NAME },
+      },
+    },
+  }) => ({
     meta: [
       {
         charSet: 'utf-8',
@@ -27,7 +37,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'TanStack Start Starter',
+        title: `${APP_NAME} - ساخته شده با تن استک استارت`,
       },
     ],
     links: [
@@ -38,16 +48,32 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
     ],
   }),
   shellComponent: RootDocument,
+  async beforeLoad() {
+    const { safeEnv } = await getRootData()
+
+    return { safeEnv }
+  },
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="fa-IR" dir="rtl">
       <head>
         <HeadContent />
       </head>
-      <body>
-        {children}
+      <body className="antialiased overflow-x-hidden w-full bg-gray-100 dark:bg-zinc-900 dark:text-white">
+        <TooltipProvider>
+          <DirectionProvider dir="rtl">
+            <main>{children}</main>
+          </DirectionProvider>
+        </TooltipProvider>
+        <Toaster
+          expand
+          closeButton
+          position="bottom-right"
+          duration={5000}
+          className="font-sans!"
+        />
         <TanStackDevtools
           config={{
             position: 'bottom-right',
