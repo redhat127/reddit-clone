@@ -1,3 +1,4 @@
+import { rateLimiterPlugin } from '#/better-auth/plugin/rate-limiter'
 import { uniqueEmailPlugin } from '#/better-auth/plugin/unique-email'
 import { db } from '@/db'
 import { redisStorage } from '@better-auth/redis-storage'
@@ -34,6 +35,7 @@ export const auth = betterAuth({
       defaultLocale: 'fa-IR',
       fallbackLocale: 'default',
     }),
+    rateLimiterPlugin(),
     uniqueEmailPlugin(),
     username(),
     tanstackStartCookies(),
