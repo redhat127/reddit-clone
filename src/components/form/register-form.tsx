@@ -30,7 +30,10 @@ export const RegisterForm = () => {
     <form
       onSubmit={handleSubmit(async (data) => {
         try {
-          const { error } = await authClient.signUp.email(data)
+          const { error } = await authClient.signUp.email({
+            ...data,
+            callbackURL: '/login',
+          })
           if (error) {
             toast.error(
               (error.code && betterAuthErrorMessageMapping[error.code]) ||

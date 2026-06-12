@@ -11,5 +11,15 @@ export const serverEnv = z
       .literal(['development', 'production', 'test'])
       .optional()
       .default('development'),
+    SMTP_HOST: z.string().min(1),
+    SMTP_PORT: z.coerce.number().int().min(1).max(65535),
+    SMTP_USER: z
+      .string()
+      .transform((v) => v || undefined)
+      .optional(),
+    SMTP_PASS: z
+      .string()
+      .transform((v) => v || undefined)
+      .optional(),
   })
   .parse(process.env)

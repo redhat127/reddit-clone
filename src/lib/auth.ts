@@ -1,5 +1,6 @@
 import { rateLimiterPlugin } from '#/better-auth/plugin/rate-limiter'
 import { uniqueEmailPlugin } from '#/better-auth/plugin/unique-email'
+import { VERIFY_EMAIL_EXPIRES_IN } from '#/const'
 import { db } from '@/db'
 import { redisStorage } from '@better-auth/redis-storage'
 import { localization } from 'better-auth-localization'
@@ -14,6 +15,7 @@ import {
   uniqueNamesGenerator,
 } from 'unique-names-generator'
 import { serverEnv } from './env.server'
+import { sendEmailVerified, sendVerifyEmail } from './mailer/index.server'
 import { redis } from './redis.server'
 
 export const auth = betterAuth({
@@ -69,6 +71,25 @@ export const auth = betterAuth({
           }
         },
       },
+    },
+  },
+  emailVerification: {
+    expiresIn: VERIFY_EMAIL_EXPIRES_IN,
+    sendOnSignIn: false,
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
+    async sendVerificationEmail(data) {
+      sendVerifyEmail({
+        to: data.user.email,
+        name: data.user.name,
+        verifyUrl: data.url,
+      }).catch(console.error)
+    },
+    async afterEmailVerification(user) {
+      sendEmailVerified({
+        to: user.email,
+        name: user.name,
+      }).catch(console.error)
     },
   },
 })
