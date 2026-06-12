@@ -11,25 +11,23 @@ import {
 import { UserAvatar } from './avatar'
 
 export const UserDropdown = ({
-  user: { name, image },
+  user: { name, username, image },
 }: {
-  user: Pick<UserTableSelect, 'name' | 'image'>
+  user: Pick<UserTableSelect, 'name' | 'username' | 'image'>
 }) => {
   const userAvatar = <UserAvatar user={{ name, image }} />
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>{userAvatar}</DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48!">
+      <DropdownMenuContent align="end" className="w-54!">
         <DropdownMenuLabel className="flex items-center gap-2">
           {userAvatar}
           <div className="min-w-0">
             <div className="truncate text-sm text-foreground font-semibold capitalize">
               {name}
             </div>
-            <div className="truncate text-muted-foreground">
-              {/* username placeholder */}
-            </div>
+            <div className="truncate text-muted-foreground">u/{username}</div>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

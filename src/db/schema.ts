@@ -1,5 +1,5 @@
-import { relations, sql  } from 'drizzle-orm'
-import type {InferSelectModel} from 'drizzle-orm';
+import type { InferSelectModel } from 'drizzle-orm'
+import { relations, sql } from 'drizzle-orm'
 import {
   boolean,
   index,
@@ -22,6 +22,8 @@ export const user = pgTable('user', {
     .defaultNow()
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
+  username: text('username').unique(),
+  displayUsername: text('display_username'),
 })
 
 export const session = pgTable(

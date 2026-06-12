@@ -13,6 +13,7 @@ export const Header = () => {
           <UserDropdown
             user={{
               name: user.name,
+              username: user.username || null,
               image: user.image || null,
             }}
           />

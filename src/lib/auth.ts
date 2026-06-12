@@ -4,7 +4,14 @@ import { localization } from 'better-auth-localization'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { APIError, createAuthMiddleware } from 'better-auth/api'
 import { betterAuth } from 'better-auth/minimal'
+import { username } from 'better-auth/plugins'
 import { tanstackStartCookies } from 'better-auth/tanstack-start'
+import { nanoid } from 'nanoid'
+import {
+  adjectives,
+  animals,
+  uniqueNamesGenerator,
+} from 'unique-names-generator'
 import { serverEnv } from './env.server'
 import { redis } from './redis.server'
 
@@ -27,6 +34,7 @@ export const auth = betterAuth({
       defaultLocale: 'fa-IR',
       fallbackLocale: 'default',
     }),
+    username(),
     tanstackStartCookies(),
   ],
   hooks: {
@@ -68,4 +76,26 @@ export const auth = betterAuth({
     client: redis,
     keyPrefix: 'better-auth:',
   }),
+  databaseHooks: {
+    user: {
+      create: {
+        async before(user) {
+          const name = uniqueNamesGenerator({
+            dictionaries: [adjectives, animals],
+            separator: '_',
+            length: 2,
+          })
+          const suffix = nanoid(4)
+          const trimmed = name.slice(0, 15)
+          const generatedUsername = `${trimmed}_${suffix}`
+          return {
+            data: {
+              ...user,
+              username: user.username ?? generatedUsername,
+            },
+          }
+        },
+      },
+    },
+  },
 })
