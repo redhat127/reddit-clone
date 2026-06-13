@@ -114,5 +114,12 @@ export const rateLimiterPlugin = () =>
           keyPath: '/reset-password/:token',
         }),
       },
+      {
+        path: '/update-user',
+        middleware: createRateLimitMiddleware({
+          points: 5,
+          duration: 300,
+        }),
+      },
     ],
   }) satisfies BetterAuthPlugin
