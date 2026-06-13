@@ -30,7 +30,10 @@ export const ResendEmailVerificationForm = () => {
     <form
       onSubmit={handleSubmit(async (data) => {
         try {
-          const { error } = await authClient.sendVerificationEmail(data)
+          const { error } = await authClient.sendVerificationEmail({
+            ...data,
+            callbackURL: '/login',
+          })
           if (error) {
             toast.error(
               (error.code && betterAuthErrorMessageMapping[error.code]) ||
