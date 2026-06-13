@@ -1,6 +1,6 @@
 import { rateLimiterPlugin } from '#/better-auth/plugin/rate-limiter'
 import { uniqueEmailPlugin } from '#/better-auth/plugin/unique-email'
-import { VERIFY_EMAIL_EXPIRES_IN } from '#/const'
+import { RESET_PASSWORD_EXPIRES_IN, VERIFY_EMAIL_EXPIRES_IN } from '#/const'
 import { db } from '@/db'
 import { redisStorage } from '@better-auth/redis-storage'
 import { localization } from 'better-auth-localization'
@@ -15,7 +15,12 @@ import {
   uniqueNamesGenerator,
 } from 'unique-names-generator'
 import { serverEnv } from './env.server'
-import { sendEmailVerified, sendVerifyEmail } from './mailer/index.server'
+import {
+  sendEmailVerified,
+  sendPasswordChanged,
+  sendResetPassword,
+  sendVerifyEmail,
+} from './mailer/index.server'
 import { redis } from './redis.server'
 
 export const auth = betterAuth({
@@ -31,6 +36,21 @@ export const auth = betterAuth({
     maxPasswordLength: 50,
     autoSignIn: false,
     requireEmailVerification: true,
+    resetPasswordTokenExpiresIn: RESET_PASSWORD_EXPIRES_IN,
+    revokeSessionsOnPasswordReset: true,
+    async sendResetPassword(data) {
+      sendResetPassword({
+        to: data.user.email,
+        name: data.user.name,
+        resetPasswordUrl: data.url,
+      }).catch(console.error)
+    },
+    async onPasswordReset(data) {
+      sendPasswordChanged({
+        to: data.user.email,
+        name: data.user.name,
+      }).catch(console.error)
+    },
   },
   plugins: [
     localization({

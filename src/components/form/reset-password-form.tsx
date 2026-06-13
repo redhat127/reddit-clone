@@ -3,20 +3,19 @@ import {
   betterAuthErrorMessageMapping,
   genericErrorMessage,
 } from '#/lib/error-message'
-import { loginZodSchema } from '#/zod-schema/login-zod-schema'
+import { resetPasswordZodSchema } from '#/zod-schema/reset-password-zod-schema'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { CheckboxInput } from '../checkbox-input'
 import { SubmitBtn } from '../submit-btn'
 import { TextInput } from '../text-input'
 import { FieldGroup } from '../ui/field'
 
-export const LoginForm = () => {
+export const ResetPasswordForm = ({ token }: { token: string }) => {
   const form = useForm({
-    resolver: zodResolver(loginZodSchema),
-    defaultValues: { email: '', password: '', rememberMe: false },
+    resolver: zodResolver(resetPasswordZodSchema),
+    defaultValues: { newPassword: '' },
   })
 
   const {
@@ -31,7 +30,10 @@ export const LoginForm = () => {
     <form
       onSubmit={handleSubmit(async (data) => {
         try {
-          const { error } = await authClient.signIn.email(data)
+          const { error } = await authClient.resetPassword({
+            ...data,
+            token,
+          })
           if (error) {
             toast.error(
               (error.code && betterAuthErrorMessageMapping[error.code]) ||
@@ -41,8 +43,8 @@ export const LoginForm = () => {
             return
           }
 
-          await navigate({ to: '/', replace: true })
-          toast.success('شما وارد شدید.')
+          await navigate({ to: '/login', replace: true })
+          toast.success('رمز عبور شما تغییر یافت. لطفا وارد شوید.')
         } catch {
           toast.error(genericErrorMessage)
         }
@@ -51,27 +53,12 @@ export const LoginForm = () => {
       <FieldGroup>
         <TextInput
           control={control}
-          name="email"
-          label="ایمیل کاربری"
-          inputProps={{ type: 'email', autoComplete: 'on' }}
-        />
-        <TextInput
-          control={control}
-          name="password"
-          label="رمز عبور"
+          name="newPassword"
+          label="رمز عبور جدید"
           inputProps={{ type: 'password', autoComplete: 'on' }}
         />
-        <CheckboxInput
-          control={control}
-          name="rememberMe"
-          label="مرا به یادآور؟"
-        />
-        <div className="flex flex-col gap-2 underline underline-offset-6">
-          <Link to="/resend-email-verification">ارسال مجدد ایمیل فعالسازی</Link>
-          <Link to="/forgot-password">فراموشی رمز عبور</Link>
-        </div>
         <SubmitBtn disabled={isSubmitting} className="w-full">
-          ورود
+          تغییر رمز عبور
         </SubmitBtn>
       </FieldGroup>
     </form>

@@ -2,6 +2,8 @@ import { render } from '@react-email/components'
 import nodemailer from 'nodemailer'
 import { serverEnv } from '../env.server'
 import EmailVerified from './email/email-verified'
+import PasswordChanged from './email/password-changed'
+import ResetPassword from './email/reset-password'
 import VerifyEmail from './email/verify-email'
 
 const transport = nodemailer.createTransport({
@@ -41,4 +43,40 @@ export const sendEmailVerified = async ({
   const from = `${serverEnv.APP_NAME} <noreply@${new URL(serverEnv.APP_URL).hostname}>`
   const html = await render(<EmailVerified name={name} />)
   return transport.sendMail({ to, subject: 'ایمیل شما تایید شد', from, html })
+}
+
+export const sendResetPassword = async ({
+  to,
+  name,
+  resetPasswordUrl,
+}: {
+  to: string
+  name: string
+  resetPasswordUrl: string
+}) => {
+  const from = `${serverEnv.APP_NAME} <noreply@${new URL(serverEnv.APP_URL).hostname}>`
+  const html = await render(
+    <ResetPassword name={name} resetPasswordUrl={resetPasswordUrl} />,
+  )
+  return transport.sendMail({ to, subject: 'بازنشانی رمز عبور', from, html })
+}
+
+export const sendPasswordChanged = async ({
+  to,
+  name,
+}: {
+  to: string
+  name: string
+}) => {
+  const from = `${serverEnv.APP_NAME} <noreply@${new URL(serverEnv.APP_URL).hostname}>`
+  const contactUsUrl = new URL('/contact-us', serverEnv.APP_URL).toString()
+  const html = await render(
+    <PasswordChanged name={name} contactUsUrl={contactUsUrl} />,
+  )
+  return transport.sendMail({
+    to,
+    subject: 'رمز عبور شما تغییر یافت',
+    from,
+    html,
+  })
 }
