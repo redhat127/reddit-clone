@@ -12,14 +12,16 @@ export const CardLayout = ({
   children,
   description,
   titleAsH1 = true,
+  cardClasses,
 }: {
   title: string
   children: ReactNode
   description?: string
   titleAsH1?: boolean
+  cardClasses?: string
 }) => {
   return (
-    <Card>
+    <Card className={cardClasses}>
       <CardHeader>
         <CardTitle>{titleAsH1 ? <h1>{title}</h1> : <h2>{title}</h2>}</CardTitle>
         {description && <CardDescription>{description}</CardDescription>}
