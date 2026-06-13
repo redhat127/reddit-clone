@@ -3,20 +3,19 @@ import {
   betterAuthErrorMessageMapping,
   genericErrorMessage,
 } from '#/lib/error-message'
-import { loginZodSchema } from '#/zod-schema/login-zod-schema'
+import { resendEmailVerificationZodSchema } from '#/zod-schema/resend-email-verification-zod-schema'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { CheckboxInput } from '../checkbox-input'
 import { SubmitBtn } from '../submit-btn'
 import { TextInput } from '../text-input'
 import { FieldGroup } from '../ui/field'
 
-export const LoginForm = () => {
+export const ResendEmailVerificationForm = () => {
   const form = useForm({
-    resolver: zodResolver(loginZodSchema),
-    defaultValues: { email: '', password: '', rememberMe: false },
+    resolver: zodResolver(resendEmailVerificationZodSchema),
+    defaultValues: { email: '' },
   })
 
   const {
@@ -31,7 +30,7 @@ export const LoginForm = () => {
     <form
       onSubmit={handleSubmit(async (data) => {
         try {
-          const { error } = await authClient.signIn.email(data)
+          const { error } = await authClient.sendVerificationEmail(data)
           if (error) {
             toast.error(
               (error.code && betterAuthErrorMessageMapping[error.code]) ||
@@ -41,8 +40,10 @@ export const LoginForm = () => {
             return
           }
 
-          await navigate({ to: '/', replace: true })
-          toast.success('شما وارد شدید.')
+          await navigate({ to: '/login' })
+          toast.success(
+            'در صورت وجود حساب کاربری با این ایمیل ، ایمیل فعالسازی برای شما ارسال می گردد.',
+          )
         } catch {
           toast.error(genericErrorMessage)
         }
@@ -55,22 +56,8 @@ export const LoginForm = () => {
           label="ایمیل کاربری"
           inputProps={{ type: 'email', autoComplete: 'on' }}
         />
-        <TextInput
-          control={control}
-          name="password"
-          label="رمز عبور"
-          inputProps={{ type: 'password', autoComplete: 'on' }}
-        />
-        <CheckboxInput
-          control={control}
-          name="rememberMe"
-          label="مرا به یادآور؟"
-        />
-        <div className="flex flex-col gap-2 underline underline-offset-6">
-          <Link to="/resend-email-verification">ارسال مجدد ایمیل فعالسازی</Link>
-        </div>
         <SubmitBtn disabled={isSubmitting} className="w-full">
-          ورود
+          ارسال ایمیل
         </SubmitBtn>
       </FieldGroup>
     </form>
