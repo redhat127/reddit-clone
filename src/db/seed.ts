@@ -1,9 +1,8 @@
-import { auth } from '#/lib/auth'
 import { serverEnv } from '#/lib/env.server'
 import { keyPrefix, redis } from '#/lib/redis.server'
-import { eq } from 'drizzle-orm'
+import { hashPassword } from 'better-auth/crypto'
 import { db } from '.'
-import { user, verification } from './schema'
+import { account, user, verification } from './schema'
 
 async function clearRedisKeys() {
   const pattern = `${keyPrefix}:*`
@@ -26,27 +25,40 @@ const seed = async () => {
   await db.delete(user)
   console.log('wiped verification and user tables.')
 
-  await Promise.all([
-    auth.api.signUpEmail({
-      body: {
+  const password = await hashPassword('password123456')
+
+  const [ali, dave] = await db
+    .insert(user)
+    .values([
+      {
         name: 'علی',
         email: 'ali@example.com',
-        password: 'password123456',
+        emailVerified: true,
+        username: 'desert_falcon92',
       },
-    }),
-    auth.api.signUpEmail({
-      body: {
+      {
         name: 'dave',
         email: 'dave@example.com',
-        password: 'password123456',
+        emailVerified: false,
+        username: 'neon_dave',
       },
-    }),
-  ])
+    ])
+    .returning({ id: user.id })
 
-  await db
-    .update(user)
-    .set({ emailVerified: true })
-    .where(eq(user.email, 'ali@example.com'))
+  await db.insert(account).values([
+    {
+      accountId: ali.id,
+      providerId: 'credential',
+      userId: ali.id,
+      password,
+    },
+    {
+      accountId: dave.id,
+      providerId: 'credential',
+      userId: dave.id,
+      password,
+    },
+  ])
 
   const newUsers = await db.query.user.findMany()
   console.log('seeded users:', newUsers)
