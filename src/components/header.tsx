@@ -1,5 +1,6 @@
 import { Link, useRouteContext } from '@tanstack/react-router'
 import { UserKeyIcon } from 'lucide-react'
+import { ModeToggle } from './mode-toggle'
 import { Button } from './ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
 import { UserDropdown } from './user/dropdown'
@@ -8,7 +9,8 @@ export const Header = () => {
   const { user } = useRouteContext({ from: '__root__' })
   return (
     <header className="fixed top-0 inset-x-0 z-50 flex items-center border-b dark:bg-transparent bg-white p-8 h-(--header-height)">
-      <div className="mr-auto">
+      <div className="mr-auto flex items-center gap-2">
+        <ModeToggle />
         {user ? (
           <UserDropdown
             user={{

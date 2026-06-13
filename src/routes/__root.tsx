@@ -11,6 +11,7 @@ import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 import appCss from '../styles.css?url'
 
 import { Header } from '#/components/header'
+import { ThemeProvider } from '#/components/theme-provider'
 import { DirectionProvider } from '#/components/ui/direction'
 import { Toaster } from '#/components/ui/sonner'
 import { TooltipProvider } from '#/components/ui/tooltip'
@@ -58,14 +59,16 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fa-IR" dir="rtl">
+    <html lang="fa-IR" dir="rtl" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
       <body className="antialiased overflow-x-hidden w-full bg-gray-100 dark:bg-zinc-900 dark:text-white">
         <TooltipProvider>
           <DirectionProvider dir="rtl">
-            <Header />
+            <ThemeProvider defaultTheme="system" storageKey="theme">
+              <Header />
+            </ThemeProvider>
             <main className="p-8 mt-(--header-height)">{children}</main>
           </DirectionProvider>
         </TooltipProvider>
