@@ -6,6 +6,7 @@ export const betterAuthErrorMessageMapping: Record<string, string> = {
   INVALID_TOKEN:
     'لینک معتبر نبوده یا منقضی شده است. مجددا درخواست لینک نمایید.',
   USERNAME_IS_ALREADY_TAKEN: 'نام کاربری مورد نظر قبلا استفاده شده است.',
+  INVALID_PASSWORD: 'رمز عبور فعلی شما نادرست است.',
 }
 
 export const rateLimitErrorMessage = (seconds: number) =>

@@ -5,6 +5,7 @@ import { db } from '@/db'
 import { redisStorage } from '@better-auth/redis-storage'
 import { localization } from 'better-auth-localization'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
+import { APIError, createAuthMiddleware } from 'better-auth/api'
 import { betterAuth } from 'better-auth/minimal'
 import { username } from 'better-auth/plugins'
 import { tanstackStartCookies } from 'better-auth/tanstack-start'
@@ -111,5 +112,20 @@ export const auth = betterAuth({
         name: user.name,
       }).catch(console.error)
     },
+  },
+  hooks: {
+    after: createAuthMiddleware(async (ctx) => {
+      const session = ctx.context.session
+
+      if (ctx.path === '/change-password' && session) {
+        const returned = ctx.context.returned
+        if (returned instanceof APIError) return
+
+        sendPasswordChanged({
+          to: session.user.email,
+          name: session.user.name,
+        }).catch(console.error)
+      }
+    }),
   },
 })

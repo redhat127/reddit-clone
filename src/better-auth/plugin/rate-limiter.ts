@@ -121,5 +121,12 @@ export const rateLimiterPlugin = () =>
           duration: 300,
         }),
       },
+      {
+        path: '/change-password',
+        middleware: createRateLimitMiddleware({
+          points: 3,
+          duration: 300,
+        }),
+      },
     ],
   }) satisfies BetterAuthPlugin
