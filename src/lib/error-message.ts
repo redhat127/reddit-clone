@@ -6,3 +6,6 @@ export const betterAuthErrorMessageMapping: Record<string, string> = {
   INVALID_TOKEN:
     'لینک معتبر نبوده یا منقضی شده است. مجددا درخواست لینک نمایید.',
 }
+
+export const rateLimitErrorMessage = (seconds: number) =>
+  `تعداد دفعات تلاش بیش از حد مجاز است. لطفا پس از ${seconds} ثانیه مجددا تلاش کنید.`

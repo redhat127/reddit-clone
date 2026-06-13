@@ -1,3 +1,4 @@
+import { rateLimitErrorMessage } from '#/lib/error-message'
 import { createRateLimiter } from '#/lib/rate-limiter.server'
 import type { BetterAuthPlugin } from 'better-auth'
 import { APIError, createAuthMiddleware } from 'better-auth/api'
@@ -14,6 +15,8 @@ const createRateLimitMiddleware = (options: {
   points: number
   duration: number
   checkEmail?: boolean
+  redirectOnLimit?: string
+  keyPath?: string
 }) => {
   const ipLimiter = createRateLimiter(options)
 
@@ -21,10 +24,12 @@ const createRateLimitMiddleware = (options: {
     const ip = getIp(ctx.headers)
 
     // falls back to IP-only if email is not in body (e.g. /reset-password)
-    const email = (ctx.body)?.email?.toLowerCase().trim()
+    const email = ctx.body?.email?.toLowerCase().trim()
+
+    const pathKey = options.keyPath ?? ctx.path
 
     try {
-      await ipLimiter.consume(`${ctx.path}:${ip}`)
+      await ipLimiter.consume(`${pathKey}:${ip}`)
       if (options.checkEmail && email) {
         await sharedEmailLimiter.consume(email)
       }
@@ -33,8 +38,17 @@ const createRateLimitMiddleware = (options: {
       if (e instanceof RateLimiterRes) {
         const secondsBeforeNext = Math.ceil(e.msBeforeNext / 1000)
 
+        if (options.redirectOnLimit) {
+          return new Response(null, {
+            status: 302,
+            headers: {
+              Location: `${options.redirectOnLimit}?rateLimiter=true&retryAfter=${secondsBeforeNext}`,
+            },
+          })
+        }
+
         throw new APIError('TOO_MANY_REQUESTS', {
-          message: `تعداد دفعات تلاش بیش از حد مجاز است. لطفا پس از ${secondsBeforeNext} ثانیه مجددا تلاش کنید.`,
+          message: rateLimitErrorMessage(secondsBeforeNext),
         })
       }
 
@@ -82,6 +96,23 @@ export const rateLimiterPlugin = () =>
       {
         path: '/reset-password',
         middleware: createRateLimitMiddleware({ points: 3, duration: 300 }),
+      },
+      {
+        path: '/verify-email',
+        middleware: createRateLimitMiddleware({
+          points: 10,
+          duration: 300,
+          redirectOnLimit: '/login',
+        }),
+      },
+      {
+        path: '/reset-password/:token',
+        middleware: createRateLimitMiddleware({
+          points: 5,
+          duration: 300,
+          redirectOnLimit: '/login',
+          keyPath: '/reset-password/:token',
+        }),
       },
     ],
   }) satisfies BetterAuthPlugin
