@@ -1,4 +1,6 @@
 import type { UserTableSelect } from '#/db/schema'
+import { Link } from '@tanstack/react-router'
+import { UserIcon } from 'lucide-react'
 import { LogoutForm } from '../form/logout-form'
 import {
   DropdownMenu,
@@ -31,6 +33,12 @@ export const UserDropdown = ({
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link to="/account">
+            <UserIcon />
+            حساب کاربری
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuItem
           className="p-0"
           onSelect={(e) => e.preventDefault()}

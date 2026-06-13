@@ -5,6 +5,7 @@ export const betterAuthErrorMessageMapping: Record<string, string> = {
   EMAIL_NOT_VERIFIED: 'ایمیل کاربری شما هنوز تایید نشده است.',
   INVALID_TOKEN:
     'لینک معتبر نبوده یا منقضی شده است. مجددا درخواست لینک نمایید.',
+  USERNAME_IS_ALREADY_TAKEN: 'نام کاربری مورد نظر قبلا استفاده شده است.',
 }
 
 export const rateLimitErrorMessage = (seconds: number) =>
